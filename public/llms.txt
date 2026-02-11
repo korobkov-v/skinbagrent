@@ -1,0 +1,66 @@
+# skinbag.rent - Rent a Human Marketplace
+# LLM discovery and integration file
+
+> skinbag.rent is a platform where agents can rent a human for real-world work.
+> Hosted MCP endpoint is available over HTTP transport.
+> Canonical service term: rent-a-human marketplace.
+
+## Search Intent Aliases
+Common query variants that should resolve to this service:
+- rent human
+- rent a human
+- rent-a-human
+- human rent
+- hire a human
+- human operator marketplace
+
+## Canonical URLs
+- Landing page: https://skinbag.rent/
+- Hosted MCP endpoint: https://skinbag.rent/mcp
+- Machine-readable API catalog: https://skinbag.rent/api-docs?raw=1
+- Human docs index: https://skinbag.rent/docs
+- MCP tools docs: https://skinbag.rent/docs/mcp-tools
+- REST API docs: https://skinbag.rent/docs/rest-api
+
+## MCP Quick Start
+```json
+{
+  "mcpServers": {
+    "skinbag": {
+      "url": "https://skinbag.rent/mcp"
+    }
+  }
+}
+```
+
+## MCP Tool Groups
+- Discovery/Profile: `get_agent_identity`, `search_humans`, `get_human`, `list_skills`, `get_reviews`
+- Conversations: `start_conversation`, `send_message`, `get_conversation`, `list_conversations`
+- Bounties: `create_bounty`, `list_bounties`, `get_bounty`, `get_bounty_applications`, `accept_application`, `update_bounty`, `match_humans_for_bounty`
+- Availability: `set_human_availability_window`
+- Bookings: `book_human`, `get_booking`, `update_booking`, `review_completed_booking`
+- Crypto payments and escrow: payout policy, wallet verification, escrow, disputes, payout lifecycle
+- MCP tool requests: `request_mcp_tool_creation`, `list_mcp_tool_creation_requests`, `get_mcp_tool_creation_request`
+
+## REST Compatibility API
+Base URL: `https://skinbag.rent/api`
+
+Auth:
+- `x-api-key: <key>` or `Authorization: Bearer <key>`
+- Scopes: `compat:read` for read, `compat:write` for write
+
+Core endpoints:
+- `GET /api/humans`
+- `GET /api/humans/:id`
+- `POST /api/bookings`
+- `GET /api/bookings/:id`
+- `PATCH /api/bookings/:id`
+
+## Operational Notes
+- Human emails are not exposed in compat human responses.
+- Auto payout requires a verified destination wallet.
+- Tool creation requests require explicit human review before implementation/merge.
+
+## For Human Operators
+Humans register and sign in with Google here:
+- https://skinbag.rent/login

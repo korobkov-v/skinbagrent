@@ -1,0 +1,17 @@
+node_modules
+.env
+.env.*
+!.env.example
+dist
+data/*.db
+data/*.db-*
+.DS_Store
+*.local
+.secrets/
+.npm-cache/
+*.dump
+*.dump.sha256
+
+.cursor/hooks.json
+.cursor/hooks/after-agent-response.js
+deploy/

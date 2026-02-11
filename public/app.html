@@ -1,0 +1,2076 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta
+      name="description"
+      content="Operator profile dashboard for skills, bookings, notifications, ratings, and payout settings."
+    />
+    <meta name="robots" content="noindex,follow" />
+    <link rel="canonical" href="https://skinbag.rent/app" />
+    <link rel="alternate" type="text/plain" href="https://skinbag.rent/llms.txt" title="LLMs catalog" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="skinbag.rent" />
+    <meta property="og:title" content="Operator Console | skinbag.rent" />
+    <meta
+      property="og:description"
+      content="Dashboard for human operators to complete profile, manage skills, and configure payouts."
+    />
+    <meta property="og:url" content="https://skinbag.rent/app" />
+    <meta property="og:image" content="https://skinbag.rent/os-skinbag.png" />
+    <meta property="og:image:alt" content="skinbag.rent preview image" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Operator Console | skinbag.rent" />
+    <meta
+      name="twitter:description"
+      content="Dashboard for human operators to complete profile, manage skills, and configure payouts."
+    />
+    <meta name="twitter:image" content="https://skinbag.rent/os-skinbag.png" />
+    <title>Operator Console | skinbag.rent</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&display=swap");
+
+      :root {
+        --bg: #ffffff;
+        --panel: #e5e0d0;
+        --panel-alt: #d8d2c0;
+        --ink: #1a1a1a;
+        --muted: #545049;
+        --line-dark: #101010;
+        --line-light: #f2ebd8;
+        --blue: #5e79a8;
+        --red: #b95454;
+        --pink: #c786ab;
+        --black: #101010;
+        --focus: #5e79a8;
+        --accent: #c786ab;
+        --danger: #b95454;
+        --ok: #4d7f5f;
+        --input-bg: #efeadb;
+        --input-shadow: #cbc2ad;
+      }
+
+      html[data-theme="dark"] {
+        --bg: #000000;
+        --panel: #2f3035;
+        --panel-alt: #292a2f;
+        --ink: #ece8de;
+        --muted: #beb6a6;
+        --line-dark: #090909;
+        --line-light: #52535a;
+        --blue: #6f88ba;
+        --red: #cf6a6a;
+        --pink: #d496bc;
+        --black: #090909;
+        --focus: #6f88ba;
+        --accent: #d496bc;
+        --danger: #cf6a6a;
+        --ok: #76a487;
+        --input-bg: #2c302f;
+        --input-shadow: #222524;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        html:not([data-theme]) {
+          --bg: #000000;
+          --panel: #3b3d3b;
+          --panel-alt: #343635;
+          --ink: #e0d8c8;
+          --muted: #b9b09f;
+          --line-dark: #181918;
+          --line-light: #5a5b58;
+          --focus: #789876;
+          --accent: #7f6b52;
+          --danger: #a77770;
+          --ok: #86a784;
+          --input-bg: #2c302f;
+          --input-shadow: #222524;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Pixelify Sans", "Trebuchet MS", sans-serif;
+        font-size: 1.02rem;
+        color: var(--ink);
+        background: var(--bg);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .layout {
+        width: min(1024px, 100% - 20px);
+        margin: 10px auto 0;
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 10px;
+      }
+
+      .card {
+        border: 3px solid var(--black);
+        box-shadow:
+          inset -3px -3px 0 var(--black),
+          inset 3px 3px 0 var(--line-light),
+          0 8px 0 rgba(0, 0, 0, 0.12);
+        background: var(--panel);
+      }
+
+      .sidebar {
+        padding: 12px;
+        position: sticky;
+        top: 8px;
+        align-self: start;
+      }
+
+      .side-head {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+
+      .side-head img {
+        width: 22px;
+        height: 22px;
+        image-rendering: pixelated;
+      }
+
+      .sidebar h2 {
+        margin: 0;
+        font-family: "Pixelify Sans", monospace;
+        font-size: 0.62rem;
+        text-transform: uppercase;
+      }
+
+      .sidebar p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .tabs {
+        display: grid;
+        gap: 6px;
+        margin-top: 10px;
+      }
+
+      .tab {
+        border: 2px solid var(--black);
+        background: color-mix(in srgb, var(--panel-alt) 80%, var(--blue));
+        box-shadow: inset 2px 2px 0 var(--line-light);
+        padding: 6px 8px;
+        text-transform: uppercase;
+        font-family: "Pixelify Sans", sans-serif;
+        font-size: 0.75rem;
+        font-weight: 700;
+      }
+
+      .tab.active {
+        background: color-mix(in srgb, var(--panel-alt) 60%, var(--pink));
+      }
+
+      .content {
+        display: grid;
+        gap: 10px;
+      }
+
+      .topbar {
+        padding: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .topbar h1 {
+        margin: 0;
+        font-family: "Pixelify Sans", monospace;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .btn {
+        border: 2px solid var(--black);
+        box-shadow: inset 2px 2px 0 var(--line-light);
+        background: color-mix(in srgb, var(--panel-alt) 82%, var(--blue));
+        color: var(--ink);
+        font-family: "Pixelify Sans", sans-serif;
+        font-size: 0.76rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 8px 10px;
+        cursor: pointer;
+      }
+
+      .btn.save {
+        background: linear-gradient(90deg, var(--blue), color-mix(in srgb, var(--blue) 55%, #d1deef));
+      }
+
+      .btn.logout {
+        background: linear-gradient(90deg, var(--red), color-mix(in srgb, var(--red) 55%, var(--panel-alt)));
+      }
+
+      .btn.alt {
+        background: linear-gradient(90deg, var(--pink), color-mix(in srgb, var(--pink) 55%, var(--panel-alt)));
+      }
+
+      .section {
+        padding: 12px;
+      }
+
+      .verify {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .status {
+        min-height: 22px;
+        margin-top: 8px;
+      }
+
+      .danger {
+        color: var(--danger);
+      }
+
+      .ok {
+        color: var(--ok);
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .field {
+        display: grid;
+        gap: 5px;
+      }
+
+      .field label {
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        font-size: 0.84rem;
+        font-weight: 700;
+      }
+
+      .field input,
+      .field textarea,
+      .field select {
+        width: 100%;
+        border: 2px solid var(--black);
+        background: var(--input-bg);
+        color: var(--ink);
+        box-shadow: inset 2px 2px 0 var(--input-shadow);
+        padding: 7px 8px;
+        font: inherit;
+        font-size: 0.98rem;
+      }
+
+      .field textarea {
+        min-height: 96px;
+        resize: vertical;
+      }
+
+      .toggles {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+      }
+
+      .toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .skills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+      }
+
+      .chip {
+        border: 2px solid var(--black);
+        background: color-mix(in srgb, var(--panel-alt) 70%, var(--pink));
+        padding: 3px 7px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .chip button {
+        border: 0;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        font: inherit;
+      }
+
+      .checklist {
+        display: grid;
+        gap: 4px;
+        margin-top: 8px;
+      }
+
+      .item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .dot {
+        width: 14px;
+        height: 14px;
+        border: 2px solid var(--black);
+        background: var(--panel-alt);
+      }
+
+      .dot.done {
+        background: var(--ok);
+      }
+
+      .wallet {
+        border: 2px dashed var(--black);
+        background: color-mix(in srgb, var(--panel-alt) 80%, var(--blue));
+        padding: 6px;
+      }
+
+      .footer {
+        width: min(1024px, 100% - 20px);
+        margin: 10px auto 14px;
+        padding: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .footer-stats {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        font-family: "Pixelify Sans", sans-serif;
+        font-size: 0.74rem;
+        text-transform: uppercase;
+      }
+
+      .footer-stats strong {
+        font-size: 0.92rem;
+        letter-spacing: 0.03em;
+      }
+
+      .theme-switch {
+        display: inline-flex;
+        gap: 4px;
+      }
+
+      .theme-btn {
+        border: 2px solid var(--black);
+        background: color-mix(in srgb, var(--panel-alt) 78%, var(--blue));
+        color: var(--ink);
+        font-family: "Pixelify Sans", sans-serif;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 6px;
+        cursor: pointer;
+      }
+
+      .theme-btn.active {
+        background: color-mix(in srgb, var(--panel-alt) 60%, var(--pink));
+      }
+
+      @media (max-width: 980px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          position: static;
+        }
+
+        .row {
+          grid-template-columns: 1fr;
+        }
+
+        .topbar {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .footer {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap");
+
+      :root {
+        --bg: #ffffff;
+        --panel: rgba(255, 255, 255, 0.9);
+        --panel-alt: rgba(244, 244, 244, 0.94);
+        --panel-muted: rgba(236, 236, 236, 0.95);
+        --text: #101010;
+        --muted: #505050;
+        --line: #141414;
+        --line-soft: rgba(0, 0, 0, 0.2);
+        --accent: #181818;
+        --accent-alt: #343434;
+        --ascii: rgba(0, 0, 0, 0.11);
+        --ok: #111111;
+        --danger: #4e4e4e;
+        --input-bg: rgba(255, 255, 255, 0.9);
+        --shadow: 0 18px 34px rgba(0, 0, 0, 0.14);
+      }
+
+      html[data-theme="dark"] {
+        --bg: #000000;
+        --panel: rgba(12, 12, 12, 0.9);
+        --panel-alt: rgba(20, 20, 20, 0.94);
+        --panel-muted: rgba(28, 28, 28, 0.95);
+        --text: #f2f2f2;
+        --muted: #b5b5b5;
+        --line: #f2f2f2;
+        --line-soft: rgba(255, 255, 255, 0.26);
+        --accent: #f0f0f0;
+        --accent-alt: #d4d4d4;
+        --ascii: rgba(255, 255, 255, 0.14);
+        --ok: #f2f2f2;
+        --danger: #bdbdbd;
+        --input-bg: rgba(16, 16, 16, 0.9);
+        --shadow: 0 20px 40px rgba(0, 0, 0, 0.52);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        html:not([data-theme]) {
+          --bg: #000000;
+          --panel: rgba(12, 12, 12, 0.9);
+          --panel-alt: rgba(20, 20, 20, 0.94);
+          --panel-muted: rgba(28, 28, 28, 0.95);
+          --text: #f2f2f2;
+          --muted: #b5b5b5;
+          --line: #f2f2f2;
+          --line-soft: rgba(255, 255, 255, 0.26);
+          --accent: #f0f0f0;
+          --accent-alt: #d4d4d4;
+          --ascii: rgba(255, 255, 255, 0.14);
+          --ok: #f2f2f2;
+          --danger: #bdbdbd;
+          --input-bg: rgba(16, 16, 16, 0.9);
+          --shadow: 0 20px 40px rgba(0, 0, 0, 0.52);
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Manrope", "Trebuchet MS", sans-serif;
+        font-size: 1rem;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .ascii-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+
+      .ascii-layer {
+        position: absolute;
+        inset: 0;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        white-space: pre;
+        text-align: center;
+        font-family: "JetBrains Mono", monospace;
+        font-size: clamp(8px, 1.05vw, 13px);
+        line-height: 1.08;
+        letter-spacing: 0.01em;
+        color: var(--ascii);
+        opacity: 0;
+        transition: opacity 1.25s ease;
+      }
+
+      .ascii-layer.active {
+        opacity: 1;
+      }
+
+      .layout {
+        width: min(1100px, calc(100% - 24px));
+        margin: 14px auto 0;
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 12px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .card {
+        border: 1px solid var(--line-soft);
+        border-radius: 16px;
+        background: linear-gradient(160deg, var(--panel), var(--panel-alt));
+        box-shadow: var(--shadow);
+      }
+
+      .sidebar {
+        padding: 14px;
+        position: sticky;
+        top: 10px;
+        align-self: start;
+      }
+
+      .side-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .side-head img {
+        width: 24px;
+        height: 24px;
+        image-rendering: pixelated;
+      }
+
+      .sidebar h2 {
+        margin: 0;
+        font-family: "Space Grotesk", "Manrope", sans-serif;
+        font-size: 1.04rem;
+        font-weight: 700;
+      }
+
+      .sidebar p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .tabs {
+        display: grid;
+        gap: 7px;
+        margin-top: 12px;
+      }
+
+      .tab {
+        border: 1px solid var(--line-soft);
+        border-radius: 12px;
+        background: var(--panel-alt);
+        padding: 8px 10px;
+        font-family: "Space Grotesk", "Manrope", sans-serif;
+        font-size: 0.86rem;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        text-transform: uppercase;
+      }
+
+      .tab.active {
+        color: var(--bg);
+        background: var(--accent);
+        border-color: transparent;
+      }
+
+      .content {
+        display: grid;
+        gap: 12px;
+      }
+
+      .topbar {
+        padding: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .topbar h1 {
+        margin: 0;
+        font-family: "Space Grotesk", "Manrope", sans-serif;
+        font-size: 1.34rem;
+        line-height: 1.1;
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .btn {
+        border: 1px solid var(--line-soft);
+        border-radius: 12px;
+        background: var(--panel-alt);
+        color: var(--text);
+        font-family: "Space Grotesk", "Manrope", sans-serif;
+        font-size: 0.88rem;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        text-transform: uppercase;
+        padding: 9px 12px;
+        cursor: pointer;
+        transition: transform 160ms ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+      }
+
+      .btn.save,
+      .btn.logout {
+        color: var(--bg);
+        background: linear-gradient(112deg, var(--accent), var(--accent-alt));
+        border-color: transparent;
+      }
+
+      .btn.alt {
+        background: var(--panel-muted);
+      }
+
+      .section {
+        padding: 14px;
+      }
+
+      .verify {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .status {
+        min-height: 22px;
+        margin-top: 8px;
+        font-size: 0.93rem;
+      }
+
+      .danger {
+        color: var(--danger);
+      }
+
+      .ok {
+        color: var(--ok);
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .field {
+        display: grid;
+        gap: 6px;
+      }
+
+      .field label {
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        font-size: 0.8rem;
+        font-weight: 700;
+      }
+
+      .field input,
+      .field textarea,
+      .field select {
+        width: 100%;
+        border: 1px solid var(--line-soft);
+        border-radius: 12px;
+        background: var(--input-bg);
+        color: var(--text);
+        padding: 10px 11px;
+        font: inherit;
+      }
+
+      .field input:focus,
+      .field textarea:focus,
+      .field select:focus {
+        outline: 2px solid color-mix(in srgb, var(--line) 40%, transparent);
+        outline-offset: 1px;
+      }
+
+      .field textarea {
+        min-height: 102px;
+        resize: vertical;
+      }
+
+      .toggles {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+      }
+
+      .toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+      }
+
+      .skills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+        margin-top: 8px;
+      }
+
+      .chip {
+        border: 1px solid var(--line-soft);
+        border-radius: 999px;
+        background: var(--panel-alt);
+        padding: 5px 9px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.86rem;
+      }
+
+      .chip button {
+        border: 0;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        font: inherit;
+      }
+
+      .checklist {
+        display: grid;
+        gap: 5px;
+        margin-top: 8px;
+      }
+
+      .item {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+      }
+
+      .dot {
+        width: 14px;
+        height: 14px;
+        border: 1px solid var(--line-soft);
+        border-radius: 999px;
+        background: var(--panel);
+      }
+
+      .dot.done {
+        border-color: transparent;
+        background: var(--accent);
+      }
+
+      .wallet {
+        border: 1px dashed var(--line-soft);
+        border-radius: 12px;
+        background: var(--panel-muted);
+        padding: 8px 10px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.8rem;
+      }
+
+      .footer {
+        width: min(1100px, calc(100% - 24px));
+        margin: 12px auto 18px;
+        padding: 12px 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .footer-stats {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.74rem;
+        text-transform: uppercase;
+      }
+
+      .footer-stats strong {
+        font-size: 0.9rem;
+        letter-spacing: 0.02em;
+      }
+
+      .theme-switch {
+        display: inline-flex;
+        gap: 5px;
+      }
+
+      .theme-btn {
+        border: 1px solid var(--line-soft);
+        border-radius: 999px;
+        background: var(--panel-alt);
+        color: var(--text);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 6px 10px;
+        cursor: pointer;
+      }
+
+      .theme-btn.active {
+        color: var(--bg);
+        background: var(--accent);
+        border-color: transparent;
+      }
+
+      @media (max-width: 980px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          position: static;
+        }
+
+        .row {
+          grid-template-columns: 1fr;
+        }
+
+        .topbar {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .footer {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;500;600;700&family=VT323&display=swap");
+
+      :root {
+        --bg: #72a9ff;
+        --bg-alt: #5e8fff;
+        --surface: #fff3b0;
+        --surface-alt: #ffdf5a;
+        --surface-muted: #ffd078;
+        --ink: #050505;
+        --muted: #173772;
+        --line: #000000;
+        --line-soft: rgba(0, 0, 0, 0.28);
+        --blue: #2b5cff;
+        --red: #ff3f31;
+        --cyan: #26d7ff;
+        --green: #2bbf66;
+        --yellow: #ffdf5a;
+        --shadow: rgba(0, 0, 0, 0.34);
+      }
+
+      html[data-theme="dark"] {
+        --bg: #07102a;
+        --bg-alt: #0f1d4d;
+        --surface: #1b2764;
+        --surface-alt: #24357e;
+        --surface-muted: #2d4195;
+        --ink: #f4f8ff;
+        --muted: #99afff;
+        --line: #dbe5ff;
+        --line-soft: rgba(219, 229, 255, 0.32);
+        --blue: #5f8eff;
+        --red: #ff7b72;
+        --cyan: #5ae3ff;
+        --green: #53d884;
+        --yellow: #ffe784;
+        --shadow: rgba(0, 0, 0, 0.56);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        html:not([data-theme]) {
+          --bg: #07102a;
+          --bg-alt: #0f1d4d;
+          --surface: #1b2764;
+          --surface-alt: #24357e;
+          --surface-muted: #2d4195;
+          --ink: #f4f8ff;
+          --muted: #99afff;
+          --line: #dbe5ff;
+          --line-soft: rgba(219, 229, 255, 0.32);
+          --blue: #5f8eff;
+          --red: #ff7b72;
+          --cyan: #5ae3ff;
+          --green: #53d884;
+          --yellow: #ffe784;
+          --shadow: rgba(0, 0, 0, 0.56);
+        }
+      }
+
+      .ascii-bg {
+        display: none;
+      }
+
+      body {
+        font-family: "Pixelify Sans", "VT323", monospace;
+        color: var(--ink);
+        background:
+          repeating-linear-gradient(
+            0deg,
+            color-mix(in srgb, var(--bg-alt) 78%, transparent) 0 4px,
+            transparent 4px 8px
+          ),
+          repeating-linear-gradient(
+            90deg,
+            color-mix(in srgb, var(--bg-alt) 84%, transparent) 0 4px,
+            transparent 4px 8px
+          ),
+          linear-gradient(180deg, var(--bg), var(--bg-alt));
+      }
+
+      .layout {
+        width: min(1080px, calc(100% - 22px));
+        gap: 10px;
+      }
+
+      .card {
+        border: 4px solid var(--line);
+        border-radius: 0;
+        box-shadow:
+          inset -3px -3px 0 var(--line-soft),
+          inset 3px 3px 0 rgba(255, 255, 255, 0.32),
+          8px 8px 0 var(--shadow);
+        background: linear-gradient(180deg, var(--surface), var(--surface-alt));
+      }
+
+      .sidebar {
+        padding: 11px;
+      }
+
+      .side-head img {
+        image-rendering: pixelated;
+      }
+
+      .sidebar h2 {
+        font-family: "Press Start 2P", monospace;
+        font-size: 0.62rem;
+        line-height: 1.45;
+        text-transform: uppercase;
+      }
+
+      .sidebar p,
+      .muted {
+        color: var(--muted);
+      }
+
+      .tab {
+        border: 3px solid var(--line);
+        border-radius: 0;
+        box-shadow: inset -2px -2px 0 var(--line-soft);
+        background: color-mix(in srgb, var(--surface) 68%, var(--cyan));
+        font-family: "Press Start 2P", monospace;
+        font-size: 0.56rem;
+      }
+
+      .tab.active {
+        color: #ffffff;
+        background: color-mix(in srgb, var(--surface) 56%, var(--blue));
+      }
+
+      .topbar {
+        padding: 12px;
+      }
+
+      .topbar h1 {
+        font-family: "Press Start 2P", monospace;
+        font-size: 0.72rem;
+        line-height: 1.5;
+        text-transform: uppercase;
+      }
+
+      .btn {
+        border: 3px solid var(--line);
+        border-radius: 0;
+        box-shadow: inset -2px -2px 0 var(--line-soft);
+        font-family: "Press Start 2P", monospace;
+        font-size: 0.54rem;
+        letter-spacing: 0.01em;
+        padding: 10px 11px;
+        transition: transform 110ms steps(2, end);
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .btn.save {
+        color: #ffffff;
+        background: linear-gradient(90deg, var(--red), var(--blue), var(--cyan));
+        background-size: 220% 220%;
+        animation: dashboard-btnpulse 4s steps(20, end) infinite;
+      }
+
+      .btn.logout {
+        color: var(--line);
+        background: linear-gradient(90deg, var(--green), var(--yellow));
+      }
+
+      .btn.alt {
+        background: color-mix(in srgb, var(--surface) 70%, var(--blue));
+      }
+
+      @keyframes dashboard-btnpulse {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      .section {
+        padding: 12px;
+      }
+
+      .field label {
+        font-family: "Press Start 2P", monospace;
+        font-size: 0.52rem;
+        line-height: 1.5;
+      }
+
+      .field input,
+      .field textarea,
+      .field select,
+      #skill-input {
+        border: 3px solid var(--line);
+        border-radius: 0;
+        box-shadow: inset -2px -2px 0 var(--line-soft);
+        background: color-mix(in srgb, var(--surface) 80%, #ffffff);
+        color: var(--ink);
+      }
+
+      html[data-theme="dark"] .field input,
+      html[data-theme="dark"] .field textarea,
+      html[data-theme="dark"] .field select,
+      html[data-theme="dark"] #skill-input {
+        background: color-mix(in srgb, var(--surface) 86%, #000000);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        html:not([data-theme]) .field input,
+        html:not([data-theme]) .field textarea,
+        html:not([data-theme]) .field select,
+        html:not([data-theme]) #skill-input {
+          background: color-mix(in srgb, var(--surface) 86%, #000000);
+        }
+      }
+
+      .chip {
+        border: 3px solid var(--line);
+        border-radius: 0;
+        box-shadow: inset -2px -2px 0 var(--line-soft);
+        background: color-mix(in srgb, var(--surface) 70%, var(--blue));
+      }
+
+      .dot {
+        border: 2px solid var(--line);
+        border-radius: 0;
+      }
+
+      .dot.done {
+        background: var(--green);
+      }
+
+      .wallet {
+        border: 3px dashed var(--line);
+        border-radius: 0;
+        background: color-mix(in srgb, var(--surface) 72%, var(--yellow));
+      }
+
+      .status {
+        font-family: "VT323", monospace;
+        font-size: 1.03rem;
+      }
+
+      .ok,
+      .danger {
+        color: var(--ink);
+      }
+
+      .theme-btn {
+        border: 3px solid var(--line);
+        border-radius: 0;
+        box-shadow: inset -2px -2px 0 var(--line-soft);
+        background: color-mix(in srgb, var(--surface) 68%, var(--blue));
+        color: var(--ink);
+        font-family: "Press Start 2P", monospace;
+        font-size: 0.52rem;
+      }
+
+      .theme-btn.active,
+      .design-btn.active {
+        background: color-mix(in srgb, var(--surface) 60%, var(--red));
+      }
+
+      .design-switch {
+        display: inline-flex;
+        gap: 5px;
+      }
+
+      .design-btn {
+        border: 3px solid var(--line);
+        border-radius: 0;
+        box-shadow: inset -2px -2px 0 var(--line-soft);
+        background: color-mix(in srgb, var(--surface) 68%, var(--green));
+        color: var(--ink);
+        font-family: "Press Start 2P", monospace;
+        font-size: 0.52rem;
+        padding: 6px 8px;
+        cursor: pointer;
+      }
+    </style>
+    <style>
+      html:not([data-design="8bit"]) {
+        --apple-bg: #f5f6f8;
+        --apple-panel: rgba(255, 255, 255, 0.86);
+        --apple-panel-strong: #ffffff;
+        --apple-panel-soft: #f1f4f9;
+        --apple-text: #111827;
+        --apple-muted: #4b5563;
+        --apple-line: rgba(17, 24, 39, 0.12);
+        --apple-blue: #0a84ff;
+      }
+
+      html[data-theme="dark"]:not([data-design="8bit"]) {
+        --apple-bg: #0a0a0c;
+        --apple-panel: rgba(22, 22, 26, 0.84);
+        --apple-panel-strong: rgba(28, 28, 34, 0.94);
+        --apple-panel-soft: rgba(34, 34, 42, 0.92);
+        --apple-text: #f5f7fa;
+        --apple-muted: #a8b0bd;
+        --apple-line: rgba(245, 247, 250, 0.16);
+        --apple-blue: #4aa6ff;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        html:not([data-theme]):not([data-design="8bit"]) {
+          --apple-bg: #0a0a0c;
+          --apple-panel: rgba(22, 22, 26, 0.84);
+          --apple-panel-strong: rgba(28, 28, 34, 0.94);
+          --apple-panel-soft: rgba(34, 34, 42, 0.92);
+          --apple-text: #f5f7fa;
+          --apple-muted: #a8b0bd;
+          --apple-line: rgba(245, 247, 250, 0.16);
+          --apple-blue: #4aa6ff;
+        }
+      }
+
+      html:not([data-design="8bit"]) .ascii-bg {
+        display: none;
+      }
+
+      html:not([data-design="8bit"]) body {
+        background: radial-gradient(circle at top right, rgba(10, 132, 255, 0.12), transparent 42%), var(--apple-bg);
+        color: var(--apple-text);
+        font-family: "SF Pro Text", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      html:not([data-design="8bit"]) .card {
+        border: 1px solid var(--apple-line);
+        border-radius: 20px;
+        box-shadow: 0 16px 34px rgba(0, 0, 0, 0.12);
+        background: linear-gradient(160deg, var(--apple-panel), var(--apple-panel-soft));
+        backdrop-filter: blur(12px);
+      }
+
+      html:not([data-design="8bit"]) .side-head img {
+        image-rendering: auto;
+      }
+
+      html:not([data-design="8bit"]) .sidebar h2,
+      html:not([data-design="8bit"]) .topbar h1 {
+        font-family: "SF Pro Display", -apple-system, sans-serif;
+        text-transform: none;
+      }
+
+      html:not([data-design="8bit"]) .sidebar h2 {
+        font-size: 1.05rem;
+      }
+
+      html:not([data-design="8bit"]) .topbar h1 {
+        font-size: 1.36rem;
+      }
+
+      html:not([data-design="8bit"]) .tab {
+        border: 1px solid var(--apple-line);
+        border-radius: 12px;
+        box-shadow: none;
+        background: var(--apple-panel-strong);
+        font-family: "SF Pro Display", -apple-system, sans-serif;
+        font-size: 0.86rem;
+      }
+
+      html:not([data-design="8bit"]) .tab.active {
+        color: #ffffff;
+        background: var(--apple-blue);
+      }
+
+      html:not([data-design="8bit"]) .muted,
+      html:not([data-design="8bit"]) .step p {
+        color: var(--apple-muted);
+      }
+
+      html:not([data-design="8bit"]) .btn {
+        border: 1px solid var(--apple-line);
+        border-radius: 12px;
+        box-shadow: none;
+        font-family: "SF Pro Display", -apple-system, sans-serif;
+        font-size: 0.88rem;
+        text-transform: none;
+      }
+
+      html:not([data-design="8bit"]) .btn.save {
+        color: #ffffff;
+        background: linear-gradient(120deg, var(--apple-blue), #3ea1ff);
+      }
+
+      html:not([data-design="8bit"]) .btn.logout,
+      html:not([data-design="8bit"]) .btn.alt {
+        background: var(--apple-panel-strong);
+        color: var(--apple-text);
+      }
+
+      html:not([data-design="8bit"]) .field label {
+        font-family: "SF Pro Text", -apple-system, sans-serif;
+        font-size: 0.82rem;
+        text-transform: uppercase;
+      }
+
+      html:not([data-design="8bit"]) .field input,
+      html:not([data-design="8bit"]) .field textarea,
+      html:not([data-design="8bit"]) .field select,
+      html:not([data-design="8bit"]) #skill-input {
+        border: 1px solid var(--apple-line);
+        border-radius: 12px;
+        box-shadow: none;
+        background: var(--apple-panel-strong);
+        color: var(--apple-text);
+      }
+
+      html:not([data-design="8bit"]) .chip {
+        border: 1px solid var(--apple-line);
+        border-radius: 999px;
+        box-shadow: none;
+        background: var(--apple-panel-strong);
+      }
+
+      html:not([data-design="8bit"]) .dot {
+        border: 1px solid var(--apple-line);
+        border-radius: 999px;
+      }
+
+      html:not([data-design="8bit"]) .dot.done {
+        background: var(--apple-blue);
+      }
+
+      html:not([data-design="8bit"]) .wallet {
+        border: 1px dashed var(--apple-line);
+        border-radius: 12px;
+        background: var(--apple-panel-soft);
+      }
+
+      html:not([data-design="8bit"]) .status {
+        font-family: "SF Pro Text", -apple-system, sans-serif;
+      }
+
+      html:not([data-design="8bit"]) .theme-switch,
+      html:not([data-design="8bit"]) .design-switch {
+        display: inline-flex;
+        gap: 6px;
+      }
+
+      html:not([data-design="8bit"]) .theme-btn,
+      html:not([data-design="8bit"]) .design-btn {
+        border: 1px solid var(--apple-line);
+        border-radius: 999px;
+        box-shadow: none;
+        background: var(--apple-panel-strong);
+        color: var(--apple-text);
+        font-family: "SF Pro Display", -apple-system, sans-serif;
+        font-size: 0.78rem;
+        text-transform: none;
+        padding: 7px 11px;
+      }
+
+      html:not([data-design="8bit"]) .theme-btn.active,
+      html:not([data-design="8bit"]) .design-btn.active {
+        color: #ffffff;
+        background: var(--apple-blue);
+        border-color: transparent;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="ascii-bg" aria-hidden="true">
+      <pre class="ascii-layer active"></pre>
+      <pre class="ascii-layer"></pre>
+    </div>
+
+    <div class="layout">
+      <aside class="card sidebar">
+        <div class="side-head">
+          <img src="/icons/pixel-human.svg" alt="human profile" />
+          <div>
+            <h2>Operator Console</h2>
+            <p>Human account setup</p>
+          </div>
+        </div>
+        <div class="tabs">
+          <div class="tab active">Profile</div>
+          <div class="tab">Skills</div>
+          <div class="tab">Payments</div>
+          <div class="tab">Status</div>
+        </div>
+      </aside>
+
+      <main class="content">
+        <section class="card topbar">
+          <div>
+            <h1>Complete your profile</h1>
+            <div class="muted">Finish required steps to receive bookings from MCP agents.</div>
+          </div>
+          <div class="actions">
+            <button class="btn save" id="save-btn">save</button>
+            <button class="btn logout" id="logout-btn">logout</button>
+          </div>
+        </section>
+
+        <section class="card section" id="verify-card">
+          <div class="verify">
+            <div>
+              <strong id="verify-title">verify your email</strong>
+              <div class="muted" id="verify-body">check your inbox for a verification link</div>
+            </div>
+            <div class="actions">
+              <button class="btn alt" id="verified-btn">i've verified</button>
+              <button class="btn alt" id="resend-btn">resend</button>
+            </div>
+          </div>
+          <div class="status" id="verify-status"></div>
+        </section>
+
+        <section class="card section" id="complete-card">
+          <strong id="complete-title">complete your profile</strong>
+          <div class="muted" id="complete-body">finish these steps to start receiving bookings:</div>
+          <div class="checklist" id="checklist"></div>
+        </section>
+
+        <section class="card section">
+          <div class="field">
+            <label>email</label>
+            <input id="email" disabled />
+          </div>
+          <div class="status" id="general-status"></div>
+
+          <div class="row">
+            <div class="field">
+              <label>name</label>
+              <input id="name" />
+            </div>
+            <div class="field">
+              <label>headline</label>
+              <input id="headline" placeholder="what you do" />
+            </div>
+          </div>
+
+          <div class="field" style="margin-top: 10px">
+            <label>bio</label>
+            <textarea id="bio"></textarea>
+          </div>
+
+          <div class="row" style="margin-top: 10px">
+            <div class="field">
+              <label>city</label>
+              <input id="city" />
+            </div>
+            <div class="field">
+              <label>state</label>
+              <input id="state" />
+            </div>
+          </div>
+
+          <div class="row" style="margin-top: 10px">
+            <div class="field">
+              <label>country</label>
+              <input id="country" />
+            </div>
+            <div class="field">
+              <label>timezone</label>
+              <input id="timezone" value="UTC" />
+            </div>
+          </div>
+
+          <div class="row" style="margin-top: 10px">
+            <div class="field">
+              <label>rate ($/hr)</label>
+              <input id="rate" type="number" min="1" step="1" value="50" />
+            </div>
+          </div>
+
+          <div class="toggles" style="margin-top: 12px">
+            <label class="toggle"><input id="available" type="checkbox" /> available / accepting bookings?</label>
+            <label class="toggle"><input id="show-email" type="checkbox" /> show email on profile?</label>
+          </div>
+
+          <div style="margin-top: 14px">
+            <strong>skills</strong>
+            <div class="muted">type a skill and press enter</div>
+            <div class="row" style="grid-template-columns: 1fr auto; margin-top: 6px">
+              <input id="skill-input" placeholder="add" />
+              <button class="btn alt" id="add-skill-btn">add</button>
+            </div>
+            <div class="skills" id="skills"></div>
+            <div class="muted" id="skills-empty">no skills added yet</div>
+          </div>
+
+          <div style="margin-top: 14px">
+            <strong>social links</strong>
+            <div class="row" style="margin-top: 8px">
+              <div class="field"><label>twitter.com/username</label><input id="twitter" /></div>
+              <div class="field"><label>linkedin.com/in/username</label><input id="linkedin" /></div>
+            </div>
+            <div class="row" style="margin-top: 8px">
+              <div class="field"><label>github.com/username</label><input id="github" /></div>
+              <div class="field"><label>yoursite.com</label><input id="website" /></div>
+            </div>
+            <div class="row" style="margin-top: 8px">
+              <div class="field"><label>instagram.com/username</label><input id="instagram" /></div>
+              <div class="field"><label>youtube.com/@channel</label><input id="youtube" /></div>
+            </div>
+          </div>
+
+          <div style="margin-top: 14px">
+            <strong>payments</strong>
+            <div class="muted">add payment wallet</div>
+            <div class="row" style="margin-top: 8px">
+              <div class="field">
+                <label>chain</label>
+                <select id="wallet-chain">
+                  <option>polygon</option>
+                  <option>ethereum</option>
+                  <option>arbitrum</option>
+                  <option>solana</option>
+                  <option>bitcoin</option>
+                  <option>tron</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>token</label>
+                <input id="wallet-token" value="USDC" />
+              </div>
+            </div>
+            <div class="row" style="margin-top: 8px">
+              <div class="field">
+                <label>network</label>
+                <select id="wallet-network">
+                  <option>mainnet</option>
+                  <option>testnet</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>address</label>
+                <input id="wallet-address" placeholder="0x..." />
+              </div>
+            </div>
+            <div style="margin-top: 8px">
+              <button class="btn alt" id="add-wallet-btn">add</button>
+            </div>
+            <div class="skills" id="wallets"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <footer class="card footer">
+      <span>skinbag.rent :: human operator dashboard</span>
+      <div class="footer-stats" aria-label="Traffic statistics">
+        <span>Visits <strong id="footer-visits">0</strong></span>
+        <span>API requests <strong id="footer-api-requests">0</strong></span>
+      </div>
+      <div class="theme-switch" aria-label="Theme switcher">
+        <button class="theme-btn" data-theme-value="system" type="button">system</button>
+        <button class="theme-btn" data-theme-value="light" type="button">light</button>
+        <button class="theme-btn" data-theme-value="dark" type="button">dark</button>
+      </div>
+      <div class="design-switch" aria-label="Design switcher">
+        <button class="design-btn" id="design-toggle" type="button">Switch style</button>
+      </div>
+    </footer>
+
+    <script src="/analytics.js"></script>
+    <script>
+      const statusNode = document.getElementById("general-status");
+      const verifyStatusNode = document.getElementById("verify-status");
+      const checklistNode = document.getElementById("checklist");
+      const STORAGE_KEY = "skinbag-theme";
+      const DESIGN_KEY = "skinbag-design";
+      const themeButtons = Array.from(document.querySelectorAll(".theme-btn"));
+      const designToggle = document.getElementById("design-toggle");
+      const footerVisits = document.getElementById("footer-visits");
+      const footerApiRequests = document.getElementById("footer-api-requests");
+      const asciiLayers = Array.from(document.querySelectorAll(".ascii-layer"));
+      const ASCII_INTERVAL_MS = 5200;
+      const asciiFrames = [
+        [
+          "  ________________________________________________  ",
+          " /                                                \\ ",
+          "|  [SEARCH]   [BOOK]   [MESSAGE]   [PAYOUT]      |",
+          "|                                                  |",
+          "|  > agent request accepted                        |",
+          "|  > human operator connected                      |",
+          "|  > verification pending                          |",
+          " \\________________________________________________/ "
+        ].join("\n"),
+        [
+          "   ______________________________________________   ",
+          "  /                                              \\  ",
+          " |  /\\   /\\   /\\   /\\   /\\   /\\   /\\   /\\         | ",
+          " | /  \\ /  \\ /  \\ /  \\ /  \\ /  \\ /  \\ /  \\        | ",
+          " |/____V____V____V____V____V____V____V____\\       | ",
+          " | queue depth stable | dispatch window open       | ",
+          "  \\______________________________________________/  "
+        ].join("\n"),
+        [
+          "  ________________________________________________  ",
+          " /                                                \\ ",
+          "|  +------+   +------+   +------+   +------+      |",
+          "|  | MCP  |-->| TASK |-->| CHAT |-->| DONE |      |",
+          "|  +------+   +------+   +------+   +------+      |",
+          "|                                                  |",
+          "|  wallet signatures: ##########                  |",
+          " \\________________________________________________/ "
+        ].join("\n"),
+        [
+          "  ________________________________________________  ",
+          " /                                                \\ ",
+          "|  local ops map                                   |",
+          "|      o----o----o----o----o                      |",
+          "|       \\  / \\  / \\  / \\  /                       |",
+          "|        oo   oo   oo   oo                        |",
+          "|  active humans: [#######.....]                  |",
+          " \\________________________________________________/ "
+        ].join("\n")
+      ];
+      let asciiFrameIndex = 0;
+      let asciiLayerIndex = 0;
+      let asciiTimer = null;
+      let profile = null;
+      let csrfToken = "";
+
+      function setStatus(node, text, ok) {
+        node.textContent = text || "";
+        node.className = `status ${ok === undefined ? "" : ok ? "ok" : "danger"}`;
+      }
+
+      function toCount(value) {
+        const parsed = Number(value);
+        if (!Number.isFinite(parsed)) {
+          return 0;
+        }
+        return Math.max(0, Math.floor(parsed));
+      }
+
+      function formatCount(value) {
+        return new Intl.NumberFormat("en-US").format(toCount(value));
+      }
+
+      function applyFooterStats(stats) {
+        if (footerVisits) {
+          footerVisits.textContent = formatCount(stats?.visits?.display ?? stats?.visits?.count);
+        }
+        if (footerApiRequests) {
+          footerApiRequests.textContent = formatCount(
+            stats?.apiRequests?.display ?? stats?.apiRequests?.count
+          );
+        }
+      }
+
+      async function loadFooterStats() {
+        try {
+          const response = await fetch("/api/stats");
+          if (!response.ok) {
+            throw new Error("Failed to load stats");
+          }
+          const data = await response.json();
+          applyFooterStats(data);
+        } catch {
+          applyFooterStats({
+            visits: { count: 0 },
+            apiRequests: { count: 0 }
+          });
+        }
+      }
+
+      async function fetchCsrfToken() {
+        const response = await fetch("/api/auth/csrf", {
+          method: "GET",
+          credentials: "include"
+        });
+        const data = await response.json();
+        csrfToken = data.csrfToken || "";
+      }
+
+      async function api(url, options = {}) {
+        const method = (options.method || "GET").toUpperCase();
+        const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
+
+        if (!["GET", "HEAD", "OPTIONS"].includes(method)) {
+          if (!csrfToken) {
+            await fetchCsrfToken();
+          }
+          headers["x-csrf-token"] = csrfToken;
+        }
+
+        const response = await fetch(url, {
+          credentials: "include",
+          headers,
+          ...options
+        });
+
+        const text = await response.text();
+        const data = text ? JSON.parse(text) : null;
+        if (response.status === 403 && data?.error === "Invalid CSRF token") {
+          csrfToken = "";
+        }
+        if (!response.ok) {
+          throw new Error(data?.error || "Request failed");
+        }
+        return data;
+      }
+
+      function applyTheme(theme) {
+        if (theme === "light" || theme === "dark") {
+          document.documentElement.setAttribute("data-theme", theme);
+        } else {
+          document.documentElement.removeAttribute("data-theme");
+        }
+        themeButtons.forEach((button) => {
+          const active = button.getAttribute("data-theme-value") === theme;
+          button.classList.toggle("active", active);
+        });
+      }
+
+      function initTheme() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        const theme = stored === "light" || stored === "dark" || stored === "system" ? stored : "system";
+        applyTheme(theme);
+      }
+
+      function applyDesign(design) {
+        if (design === "8bit") {
+          document.documentElement.setAttribute("data-design", "8bit");
+        } else {
+          document.documentElement.removeAttribute("data-design");
+        }
+        if (designToggle) {
+          const is8bit = design === "8bit";
+          designToggle.classList.toggle("active", is8bit);
+          designToggle.textContent = "Switch style";
+        }
+      }
+
+      function initDesign() {
+        const stored = localStorage.getItem(DESIGN_KEY);
+        const design = stored === "apple" || stored === "8bit" ? stored : "8bit";
+        if (!stored) {
+          localStorage.setItem(DESIGN_KEY, design);
+        }
+        applyDesign(design);
+      }
+
+      function stopAsciiBackground() {
+        if (asciiTimer) {
+          clearInterval(asciiTimer);
+          asciiTimer = null;
+        }
+      }
+
+      function swapAsciiFrame(nextFrameText) {
+        if (asciiLayers.length < 2) {
+          return;
+        }
+        const nextLayerIndex = asciiLayerIndex === 0 ? 1 : 0;
+        const currentLayer = asciiLayers[asciiLayerIndex];
+        const nextLayer = asciiLayers[nextLayerIndex];
+        nextLayer.textContent = nextFrameText;
+        nextLayer.classList.add("active");
+        currentLayer.classList.remove("active");
+        asciiLayerIndex = nextLayerIndex;
+      }
+
+      function initAsciiBackground() {
+        if (!asciiLayers.length || !asciiFrames.length) {
+          return;
+        }
+        asciiLayers[0].textContent = asciiFrames[0];
+        asciiLayers[0].classList.add("active");
+        if (asciiLayers[1]) {
+          asciiLayers[1].textContent = asciiFrames[1 % asciiFrames.length];
+        }
+        stopAsciiBackground();
+        asciiTimer = setInterval(() => {
+          asciiFrameIndex = (asciiFrameIndex + 1) % asciiFrames.length;
+          swapAsciiFrame(asciiFrames[asciiFrameIndex]);
+        }, ASCII_INTERVAL_MS);
+      }
+
+      themeButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const theme = button.getAttribute("data-theme-value");
+          if (!theme) return;
+          localStorage.setItem(STORAGE_KEY, theme);
+          applyTheme(theme);
+        });
+      });
+
+      if (designToggle) {
+        designToggle.addEventListener("click", () => {
+          const current = document.documentElement.getAttribute("data-design") === "8bit" ? "8bit" : "apple";
+          const next = current === "8bit" ? "apple" : "8bit";
+          localStorage.setItem(DESIGN_KEY, next);
+          applyDesign(next);
+        });
+      }
+
+      initDesign();
+      initTheme();
+      initAsciiBackground();
+      loadFooterStats();
+      fetchCsrfToken().catch(() => {});
+
+      function getNotificationByKey(key) {
+        const list = profile?.notifications || [];
+        return list.find((item) => item.key === key) || null;
+      }
+
+      function renderChecklist() {
+        if (!profile) return;
+        const completeNotification = getNotificationByKey("complete_profile");
+        const completeCard = document.getElementById("complete-card");
+        const completeTitle = document.getElementById("complete-title");
+        const completeBody = document.getElementById("complete-body");
+
+        if (!completeNotification) {
+          completeCard.style.display = "none";
+          checklistNode.innerHTML = "";
+          return;
+        }
+
+        completeCard.style.display = "block";
+        completeTitle.textContent = completeNotification.title;
+        completeBody.textContent = completeNotification.body;
+
+        const steps = completeNotification.checklist || profile.completion.steps;
+        checklistNode.innerHTML = `
+          <div class="muted">${profile.completion.completed}/${profile.completion.total} complete</div>
+          ${steps
+            .map(
+              (step) => `
+              <div class="item">
+                <span class="dot ${step.done ? "done" : ""}"></span>
+                <span>${step.label}</span>
+              </div>
+            `
+            )
+            .join("")}
+        `;
+      }
+
+      function renderNotifications() {
+        if (!profile) return;
+        const verifyNotification = getNotificationByKey("verify_email");
+        const verifyCard = document.getElementById("verify-card");
+        const verifyTitle = document.getElementById("verify-title");
+        const verifyBody = document.getElementById("verify-body");
+        const verifiedButton = document.getElementById("verified-btn");
+        const resendButton = document.getElementById("resend-btn");
+
+        if (!verifyNotification) {
+          verifyCard.style.display = "none";
+          setStatus(verifyStatusNode, "Email verified", true);
+          return;
+        }
+
+        verifyCard.style.display = "block";
+        verifyTitle.textContent = verifyNotification.title;
+        verifyBody.textContent = verifyNotification.body;
+
+        const resendAction = (verifyNotification.actions || []).find((action) => action.key === "resend");
+        verifiedButton.disabled = false;
+        resendButton.disabled = resendAction ? !resendAction.enabled : false;
+
+        if (resendAction && resendAction.enabled === false && resendAction.retryAfterSeconds) {
+          setStatus(
+            verifyStatusNode,
+            `check your inbox for a verification link. resend available in ${resendAction.retryAfterSeconds}s`,
+            false
+          );
+        } else {
+          setStatus(verifyStatusNode, "check your inbox for a verification link", false);
+        }
+      }
+
+      function renderSkills() {
+        const wrap = document.getElementById("skills");
+        const empty = document.getElementById("skills-empty");
+        wrap.innerHTML = "";
+        const skills = profile.profile.skills || [];
+
+        if (!skills.length) {
+          empty.style.display = "block";
+          return;
+        }
+
+        empty.style.display = "none";
+        skills.forEach((skill) => {
+          const node = document.createElement("span");
+          node.className = "chip";
+          node.innerHTML = `${skill.name}<button data-slug="${skill.slug}">x</button>`;
+          wrap.appendChild(node);
+        });
+
+        wrap.querySelectorAll("button").forEach((button) => {
+          button.addEventListener("click", async () => {
+            try {
+              const slug = button.getAttribute("data-slug");
+              const data = await api(`/api/profile/skills/${slug}`, { method: "DELETE" });
+              profile = data.profile;
+              renderAll();
+            } catch (error) {
+              setStatus(statusNode, error.message, false);
+            }
+          });
+        });
+      }
+
+      function renderWallets() {
+        const wrap = document.getElementById("wallets");
+        wrap.innerHTML = "";
+        (profile.profile.wallets || []).forEach((wallet) => {
+          const node = document.createElement("div");
+          node.className = "wallet";
+          node.textContent = `${wallet.chain}/${wallet.network} ${wallet.tokenSymbol} - ${wallet.address}`;
+          wrap.appendChild(node);
+        });
+      }
+
+      function renderAll() {
+        if (!profile) return;
+
+        document.getElementById("email").value = profile.user.email;
+        document.getElementById("name").value = profile.profile.name || "";
+        document.getElementById("headline").value = profile.profile.headline || "";
+        document.getElementById("bio").value = profile.profile.bio || "";
+        document.getElementById("city").value = profile.profile.city || "";
+        document.getElementById("state").value = profile.profile.state || "";
+        document.getElementById("country").value = profile.profile.country || "";
+        document.getElementById("available").checked = !!profile.profile.available;
+        document.getElementById("show-email").checked = !!profile.profile.showEmail;
+        document.getElementById("rate").value = profile.profile.rate || 50;
+        document.getElementById("timezone").value = profile.profile.timezone || "UTC";
+
+        const links = profile.profile.socialLinks || {};
+        document.getElementById("twitter").value = links.twitter || "";
+        document.getElementById("linkedin").value = links.linkedin || "";
+        document.getElementById("github").value = links.github || "";
+        document.getElementById("website").value = links.website || "";
+        document.getElementById("instagram").value = links.instagram || "";
+        document.getElementById("youtube").value = links.youtube || "";
+        renderNotifications();
+        renderChecklist();
+        renderSkills();
+        renderWallets();
+      }
+
+      async function loadProfile() {
+        const me = await fetch("/api/auth/me", { credentials: "include" });
+        if (!me.ok) {
+          location.href = "/login";
+          return;
+        }
+
+        const data = await api("/api/profile/me");
+        profile = data.profile;
+        renderAll();
+      }
+
+      document.getElementById("logout-btn").addEventListener("click", async () => {
+        await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+        location.href = "/login";
+      });
+
+      document.getElementById("save-btn").addEventListener("click", async () => {
+        try {
+          const payload = {
+            name: document.getElementById("name").value,
+            headline: document.getElementById("headline").value,
+            bio: document.getElementById("bio").value,
+            city: document.getElementById("city").value || null,
+            state: document.getElementById("state").value || null,
+            country: document.getElementById("country").value || null,
+            available: document.getElementById("available").checked,
+            showEmail: document.getElementById("show-email").checked,
+            rate: Number(document.getElementById("rate").value || 50),
+            timezone: document.getElementById("timezone").value || "UTC",
+            socialLinks: {
+              twitter: document.getElementById("twitter").value,
+              linkedin: document.getElementById("linkedin").value,
+              github: document.getElementById("github").value,
+              website: document.getElementById("website").value,
+              instagram: document.getElementById("instagram").value,
+              youtube: document.getElementById("youtube").value
+            }
+          };
+
+          const data = await api("/api/profile/me", {
+            method: "PATCH",
+            body: JSON.stringify(payload)
+          });
+          profile = data.profile;
+          renderAll();
+          setStatus(statusNode, "Profile saved", true);
+        } catch (error) {
+          setStatus(statusNode, error.message, false);
+        }
+      });
+
+      document.getElementById("add-skill-btn").addEventListener("click", async () => {
+        const skill = document.getElementById("skill-input").value.trim();
+        if (!skill) return;
+
+        try {
+          const data = await api("/api/profile/skills", {
+            method: "POST",
+            body: JSON.stringify({ skill })
+          });
+          document.getElementById("skill-input").value = "";
+          profile = data.profile;
+          renderAll();
+          setStatus(statusNode, "Skill added", true);
+        } catch (error) {
+          setStatus(statusNode, error.message, false);
+        }
+      });
+
+      document.getElementById("skill-input").addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          document.getElementById("add-skill-btn").click();
+        }
+      });
+
+      document.getElementById("resend-btn").addEventListener("click", async () => {
+        try {
+          const result = await api("/api/profile/email/resend", {
+            method: "POST",
+            body: JSON.stringify({})
+          });
+          const refresh = await api("/api/profile/me");
+          profile = refresh.profile;
+          renderAll();
+
+          const isSent = result.sent !== false;
+          setStatus(verifyStatusNode, result.message || "Verification link sent", isSent);
+        } catch (error) {
+          setStatus(verifyStatusNode, error.message, false);
+        }
+      });
+
+      document.getElementById("verified-btn").addEventListener("click", async () => {
+        try {
+          const result = await api("/api/profile/email/verify", {
+            method: "POST",
+            body: JSON.stringify({})
+          });
+          setStatus(
+            verifyStatusNode,
+            result.verified ? "Email verified" : result.message || "Still waiting for email verification",
+            Boolean(result.verified)
+          );
+          const data = await api("/api/profile/me");
+          profile = data.profile;
+          renderAll();
+        } catch (error) {
+          setStatus(verifyStatusNode, error.message, false);
+        }
+      });
+
+      document.getElementById("add-wallet-btn").addEventListener("click", async () => {
+        if (!profile?.profile?.humanId) return;
+
+        try {
+          await api(`/api/humans/${profile.profile.humanId}/wallets`, {
+            method: "POST",
+            body: JSON.stringify({
+              chain: document.getElementById("wallet-chain").value,
+              network: document.getElementById("wallet-network").value,
+              tokenSymbol: document.getElementById("wallet-token").value,
+              address: document.getElementById("wallet-address").value,
+              isDefault: true
+            })
+          });
+
+          document.getElementById("wallet-address").value = "";
+          const data = await api("/api/profile/me");
+          profile = data.profile;
+          renderAll();
+          setStatus(statusNode, "Wallet added", true);
+        } catch (error) {
+          setStatus(statusNode, error.message, false);
+        }
+      });
+
+      window.addEventListener("beforeunload", () => {
+        stopAsciiBackground();
+      });
+
+      loadProfile().catch((error) => {
+        setStatus(statusNode, error.message, false);
+      });
+    </script>
+  </body>
+</html>

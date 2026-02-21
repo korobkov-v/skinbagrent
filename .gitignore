@@ -15,3 +15,9 @@ data/*.db-*
 .cursor/hooks.json
 .cursor/hooks/after-agent-response.js
 deploy/
+
+.cursor/hooks/after-agent-response.cjs
+.cursor/hooks/before-submit-prompt.cjs
+.cursor/hooks/before-submit-prompt.js
+.cursor/cursor-notifier.json
+.cursor/cursor-notifier-start.json

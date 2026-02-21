@@ -1,6 +1,6 @@
 {
   "name": "skinbag-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": false,
   "description": "Open-source Skinbag.rent style MCP + API marketplace for AI agents to book humans",
   "license": "MIT",
